@@ -41,7 +41,7 @@ server.use('/api/users', restricted, usersRouter);
 server.use('/api/auth', authRouter);
 
 server.get('/', (req, res) => {
-    res.send('<h2>Web Auth I Module Challenge</h2>');
+    res.send('<h2>Web Auth 2 Module Challenge</h2>');
 });
 
 module.exports = server;
