@@ -9,12 +9,13 @@ router.post('/register', (req, res) => {
     const user = req.body;
     const hash = bcrypt.hashSync(user.password, 8);
     user.password = hash;
-
+console.log("USER", user)
     Users.add(user)
-        .then(users => {
+        .then(user => {
             res.status(200).json({ message: 'Registration successful' });
         })
         .catch(err => {
+          console.log('ERR', err)
             res.status(500).json({ message: 'Registraition failed' });
         });
 });
