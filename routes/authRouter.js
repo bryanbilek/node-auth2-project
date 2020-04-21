@@ -1,15 +1,13 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
-const jwt = require('json-web-token');
+const jwt = require('jsonwebtoken');
 const Users = require('../helpers/usersModel');
-const secrets = require('../config/secrets');
+const secrets = require('../api/secrets');
 
 //POST to /api/auth/register
 router.post('/register', (req, res) => {
-    let user = req.body;
-
+    const user = req.body;
     const hash = bcrypt.hashSync(user.password, 8);
-
     user.password = hash;
 
     Users.add(user)
@@ -23,7 +21,7 @@ router.post('/register', (req, res) => {
 
 //POST to /api/auth/login
 router.post('/login', (req, res) => {
-    let { username, password } = req.body;
+    const { username, password } = req.body;
 
     Users.findBy({ username })
         .then(([user]) => {
@@ -39,16 +37,35 @@ router.post('/login', (req, res) => {
         });
 });
 
+//GET to /api/auth/logout
+router.get("/logout", (req, res) => {
+    if (req.session) {
+      req.session.destroy(error => {
+        if (error) {
+          res.status(500).json({
+            errorMessage:
+              "you can checkout any time you like by you can never leave.....",
+          });
+        } else {
+          res.status(204).end();
+        }
+      });
+    } else {
+      res.status(204).end();
+    }
+  });
+
 //token
 function generateToken(user) {
     const payload = {
-        subject: user.id,
+        userId: user.id,
         username: user.username
     };
+    const secret = secrets.jwtSecret
     const options = {
-        expiresIn: '8h'
+        expiresIn: '2h'
     };
-    return jwt.sign(payload, secrets.jwtSecret, options);
+    return jwt.sign(payload, secret, options);
 };
 
 module.exports = router;
